@@ -1,11 +1,11 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Bill;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class UserTypesSeeder extends Seeder
+class TypesSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,10 +15,9 @@ class UserTypesSeeder extends Seeder
     public function run()
     {
         $types = [
-            ['name' => 'Системный'],
-            ['name' => 'Пользовательский']
+            'name' => 'transfer'
         ];
 
-        DB::table('user_types')->insert($types);
+        DB::table('bill_types')->insert($types);
     }
 }

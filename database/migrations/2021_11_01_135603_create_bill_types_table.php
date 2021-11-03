@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTransactionHistoriesTable extends Migration
+class CreateBillTypesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,11 @@ class CreateTransactionHistoriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('transaction_histories', function (Blueprint $table) {
+        Schema::create('bill_types', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('transaction_id')->index();
-            $table->binary('payload');
+            $table->string('name', 30)->unique();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable();
-
-            $table->foreign('transaction_id')->references('id')->on('transactions');
         });
     }
 
@@ -31,9 +28,6 @@ class CreateTransactionHistoriesTable extends Migration
      */
     public function down()
     {
-        Schema::table('transaction_histories', function (Blueprint $table) {
-            $table->dropForeign('transaction_histories_transaction_id_foreign');
-            $table->dropIfExists();
-        });
+        Schema::dropIfExists('bill_types');
     }
 }

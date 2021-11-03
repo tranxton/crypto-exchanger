@@ -2,12 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Models;
+namespace App\Models\Bill;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TransactionHistory extends Model
+/**
+ * @property int    $id
+ * @property string $name
+ */
+class Type extends Model
 {
     use HasFactory;
+
+    protected $table = 'bill_types';
 }

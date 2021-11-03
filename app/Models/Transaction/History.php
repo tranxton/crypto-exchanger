@@ -7,13 +7,9 @@ namespace App\Models\Transaction;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * @property int    $id
- * @property string $name
- */
-class Status extends Model
+class History extends Model
 {
     use HasFactory;
 
-    protected $table = 'transaction_statuses';
+    protected $table = 'transaction_history';
 }

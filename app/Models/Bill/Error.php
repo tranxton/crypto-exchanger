@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Models\Transaction;
+namespace App\Models\Bill;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property int    $id
- * @property string $name
+ * @property string $message
  */
-class Status extends Model
+class Error extends Model
 {
     use HasFactory;
 
-    protected $table = 'transaction_statuses';
+    protected $table = 'bill_errors';
 }

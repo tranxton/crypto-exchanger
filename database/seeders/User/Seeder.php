@@ -1,14 +1,14 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\User;
 
 use DateTime;
-use Illuminate\Database\Seeder;
+use Illuminate\Database\Seeder as DatabaseSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-class UsersSeeder extends Seeder
+class Seeder extends DatabaseSeeder
 {
     /**
      * Run the database seeds.

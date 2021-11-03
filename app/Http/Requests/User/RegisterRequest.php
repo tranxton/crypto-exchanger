@@ -20,10 +20,10 @@ class RegisterRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'          => ['required', 'min:5', 'max:30'],
-            'email'         => ['required', 'email:rfc', Rule::unique(User::class, 'email')],
+            'name'          => ['required', 'string', 'min:5', 'max:30'],
+            'email'         => ['required', 'string', 'email:rfc', Rule::unique(User::class, 'email')],
             'password'      => ['required', Password::min(8)->numbers()->letters()->symbols()->mixedCase()],
-            'referral_link' => ['filled', 'min:5', 'max:5', Rule::exists(ReferralLink::class, 'value')],
+            'referral_link' => ['filled', 'string', 'min:5', 'max:5', Rule::exists(ReferralLink::class, 'value')],
         ];
     }
 }

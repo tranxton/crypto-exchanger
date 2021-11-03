@@ -117,7 +117,7 @@ class UserController extends ApiController
      *      ),
      *      @OA\Response(
      *          response=500,
-     *          description="Произошла неизвестная ошибка"
+     *          description="Произошла непредвиденная ошибка"
      *      )
      * )
      *
@@ -172,7 +172,7 @@ class UserController extends ApiController
      *      @OA\Response(
      *          response=200,
      *          description="Успешно выполнен",
-     *          @OA\JsonContent(ref="#/components/schemas/User")
+     *          @OA\JsonContent(ref="#/components/schemas/Auth")
      *       ),
      *      @OA\Response(
      *          response=422,
@@ -180,7 +180,7 @@ class UserController extends ApiController
      *      ),
      *      @OA\Response(
      *          response=500,
-     *          description="Произошла неизвестная ошибка"
+     *          description="Произошла непредвиденная ошибка"
      *      )
      * )
      *

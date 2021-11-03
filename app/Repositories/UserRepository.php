@@ -85,7 +85,7 @@ class UserRepository
 
             if (isset($fields['referral_link'])) {
                 $user = self::getLinkOwner($fields['referral_link']);
-                self::linkReferralToUsers($user, $referral);
+                self::linkReferralToUser($user, $referral);
             }
         } catch (Exception $e) {
             DB::rollBack();
@@ -135,7 +135,7 @@ class UserRepository
      *
      * @return bool
      */
-    public static function linkReferralToUsers(User $user, User $referral): bool
+    public static function linkReferralToUser(User $user, User $referral): bool
     {
         $users = User::where('id', $user->id)->with('allOwners')->get();
         $relationships = self::createReferralToUsersRelationship($users, $referral, Level::MIN);

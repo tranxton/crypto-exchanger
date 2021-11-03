@@ -1,11 +1,11 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Wallet;
 
 use App\Models\Wallet\Wallet;
-use Illuminate\Database\Seeder;
+use Illuminate\Database\Seeder as DatabaseSeeder;
 
-class WalletsSeeder extends Seeder
+class Seeder extends DatabaseSeeder
 {
     /**
      * Run the database seeds.

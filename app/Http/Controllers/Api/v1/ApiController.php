@@ -41,7 +41,8 @@ class ApiController extends Controller
      *           @OA\Property(property="email", type="string"),
      *           @OA\Property(property="wallets", type="array",
      *              @OA\Items(ref="#/components/schemas/Wallet")
-     *           )
+     *           ),
+     *           @OA\Property(property="referrals", type="object", ref="#/components/schemas/Referral")
      *       )
      *   }
      * )
@@ -70,12 +71,21 @@ class ApiController extends Controller
      * )
      *
      * @OA\Schema(
+     *   schema="Referral",
+     *   type="object",
+     *   allOf={
+     *       @OA\Schema(
+     *           @OA\Property(property="amount", type="integer")
+     *       )
+     *   }
+     * )
+     *
+     * @OA\Schema(
      *   schema="Auth",
      *   type="object",
      *   allOf={
      *       @OA\Schema(
-     *           @OA\Property(property="token", type="string"),
-     *           @OA\Property(property="expires", type="integer")
+     *           @OA\Property(property="token", type="string")
      *       )
      *   }
      * )
