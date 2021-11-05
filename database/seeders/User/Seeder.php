@@ -22,6 +22,7 @@ class Seeder extends DatabaseSeeder
                 'name'              => env('SYSTEM_NAME', 'system'),
                 'email'             => env('SYSTEM_EMAIL', 'system'),
                 'email_verified_at' => (new DateTime())->format('Y-m-d H:i:s'),
+                'type_id'           => 1,
                 'password'          => Hash::make(env('SYSTEM_PASSWORD', Str::random(20))),
             ],
         ];

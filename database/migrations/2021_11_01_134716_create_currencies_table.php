@@ -17,7 +17,6 @@ class CreateCurrenciesTable extends Migration
             $table->id();
             $table->string('full_name', 30)->unique();
             $table->string('short_name', 10)->unique();
-            $table->unsignedTinyInteger('address_length');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable();
         });

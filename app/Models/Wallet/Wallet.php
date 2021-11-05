@@ -21,6 +21,10 @@ class Wallet extends Model
 {
     use HasFactory;
 
+    public const DEFAULT_VALUE = '0.00';
+
+    protected $fillable = ['user_id', 'type_id', 'currency_id', 'address', 'value'];
+
     /**
      * Возвращает владельца кошелька
      *
@@ -49,5 +53,29 @@ class Wallet extends Model
     public function type()
     {
         return $this->hasOne(Type::class, 'id', 'type_id');
+    }
+
+    /**
+     *
+     *
+     * @param string $address
+     *
+     * @return static
+     */
+    public static function getByAddress(string $address): self
+    {
+        return self::where('address', $address)->first();
+    }
+
+    /**
+     * Проверяет является ли пользователь владельце кошелька
+     *
+     * @param User $user
+     *
+     * @return bool
+     */
+    public function isUserOwner(User $user): bool
+    {
+        return $this->user->id === $user->id;
     }
 }

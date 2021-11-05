@@ -12,6 +12,21 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class UserResource extends JsonResource
 {
     /**
+     * @OA\Schema(
+     *   schema="User",
+     *   type="object",
+     *   allOf={
+     *       @OA\Schema(
+     *           @OA\Property(property="name", type="string"),
+     *           @OA\Property(property="email", type="string"),
+     *           @OA\Property(property="wallets", type="array",
+     *              @OA\Items(ref="#/components/schemas/Wallet")
+     *           ),
+     *           @OA\Property(property="referrals", type="object", ref="#/components/schemas/Referral")
+     *       )
+     *   }
+     * )
+     *
      * Transform the resource into an array.
      *
      * @param \Illuminate\Http\Request $request
@@ -26,31 +41,10 @@ class UserResource extends JsonResource
         return [
             'name'      => $this->name,
             'email'     => $this->email,
-            'wallets'   => $this->getWallets($this->wallets),
+            'wallets'   => WalletResource::collection($this->wallets),
             'referrals' => [
                 'amount' => $this->referrals->count(),
             ],
         ];
-    }
-
-    private function getWallets(Collection $wallets): array
-    {
-        $result = [];
-
-        /**
-         * @var Wallet $wallet
-         */
-        foreach ($wallets as $wallet) {
-            $result[] = [
-                'address'  => $wallet->address,
-                'value'    => $wallet->value,
-                'currency' => [
-                    'full_name'  => $wallet->currency->full_name,
-                    'short_name' => $wallet->currency->short_name,
-                ],
-            ];
-        }
-
-        return $result;
     }
 }

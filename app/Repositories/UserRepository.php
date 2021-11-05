@@ -18,48 +18,6 @@ use Illuminate\Support\Str;
 class UserRepository
 {
     /**
-     * Возвращает пользователя
-     *
-     * @param int $id
-     *
-     * @return User
-     * @throws Exception
-     */
-    public static function get(int $id): User
-    {
-        /**
-         * @var User $user
-         */
-        $user = User::find($id);
-        if ($user->type->id === Type::SYSTEM) {
-            throw new Exception('Нельзя получить системный аккаунт');
-        }
-
-        return $user;
-    }
-
-    /**
-     * Возвращает пользователя по имени
-     *
-     * @param string $name
-     *
-     * @return User
-     * @throws Exception
-     */
-    public static function getByName(string $name): User
-    {
-        /**
-         * @var User $user
-         */
-        $user = User::where('name', $name)->first();
-        if ($user->type->id === Type::SYSTEM) {
-            throw new Exception('Нельзя получить системный аккаунт');
-        }
-
-        return $user;
-    }
-
-    /**
      * Создание пользователя в системе
      *
      * @param string      $name
@@ -68,63 +26,44 @@ class UserRepository
      * @param string|null $referral_link
      *
      * @return User
+     * @throws Exception
      */
-    public static function create(array $fields): User
+    public static function create(string $name, string $email, string $password, ?string $referral_link = null): User
     {
-        $fields['password'] = Hash::make($fields['password']);
-
         DB::beginTransaction();
         try {
             /**
              * @var User $referral
              */
-            $referral = User::create($fields);
+            $user_data = [
+                'name'     => $name,
+                'email'    => $email,
+                'password' => Hash::make($password),
+                'type_id'  => Type::USER,
+            ];
+            $referral = User::create($user_data);
 
-            $referral_link = Link::create(['user_id' => $referral->id, 'value' => Str::random(5)]);
-            $referral->referral_link()->save($referral_link);
+            $link = Link::create(['user_id' => $referral->id, 'value' => Str::random(5)]);
+            $referral->referral_link()->save($link);
 
-            if (isset($fields['referral_link'])) {
-                $user = self::getLinkOwner($fields['referral_link']);
+            if (isset($referral_link)) {
+                $user = Link::getOwner($referral_link);
+                if ($user === null) {
+                    DB::rollBack();
+
+                    throw new Exception('Недействительная реферальная ссылка');
+                }
+
                 self::linkReferralToUser($user, $referral);
             }
         } catch (Exception $e) {
             DB::rollBack();
 
-            throw new Exception('Не удалось зарегистрировать пользователя', 0, $e);
+            throw new Exception($e->getMessage(), 0, $e);
         }
         DB::commit();
 
         return $referral;
-    }
-
-    /**
-     * Авторизует пользователя в системе
-     *
-     * @param User $user
-     *
-     * @return User
-     * @throws Exception
-     */
-    public static function login(User $user): User
-    {
-        $user->api_token = Str::random(60);
-        if (!$user->save()) {
-            throw new \Exception('Не удалось сохранить авторизационный токен');
-        }
-
-        return $user;
-    }
-
-    /**
-     * Возвращает владельца реферальной ссылки
-     *
-     * @param string $link
-     *
-     * @return User
-     */
-    public static function getLinkOwner(string $link): User
-    {
-        return Link::where('value', $link)->with('user')->first()->user;
     }
 
     /**

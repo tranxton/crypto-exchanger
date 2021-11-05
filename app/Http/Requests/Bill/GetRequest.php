@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests\Transaction;
+namespace App\Http\Requests\Bill;
 
-use App\Models\Transaction\Transaction;
+use App\Models\Bill\Bill;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -30,7 +30,7 @@ class GetRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => ['required', 'integer', Rule::exists(Transaction::class, 'id')],
+            'id' => ['required', 'integer', Rule::exists(Bill::class, 'id')],
         ];
     }
 }

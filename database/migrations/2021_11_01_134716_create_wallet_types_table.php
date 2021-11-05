@@ -15,7 +15,7 @@ class CreateWalletTypesTable extends Migration
     {
         Schema::create('wallet_types', function (Blueprint $table) {
                 $table->id();
-                $table->string('name', 20);
+                $table->string('name', 20)->unique();
                 $table->timestamp('created_at')->useCurrent();
                 $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable();
             });

@@ -13,6 +13,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
+        $this->call(\Database\Seeders\User\ReferralLevelsSeeder::class);
+        $this->call(\Database\Seeders\User\TypesSeeder::class);
+        $this->call(\Database\Seeders\User\Seeder::class);
+        $this->call(CurrencySeeder::class);
+        $this->call(\Database\Seeders\Wallet\TypesSeeder::class);
+        $this->call(\Database\Seeders\Wallet\Seeder::class);
+        $this->call(\Database\Seeders\Bill\TypesSeeder::class);
+        $this->call(\Database\Seeders\Bill\StatusesSeeder::class);
+        $this->call(\Database\Seeders\Transaction\TypesSeeder::class);
+        $this->call(\Database\Seeders\Transaction\StatusesSeeder::class);
     }
 }

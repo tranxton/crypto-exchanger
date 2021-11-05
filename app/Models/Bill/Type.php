@@ -16,4 +16,9 @@ class Type extends Model
     use HasFactory;
 
     protected $table = 'bill_types';
+
+    /**
+     * Перевод между кошельками
+     */
+    public const TRANSFER = 1;
 }

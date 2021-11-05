@@ -23,8 +23,8 @@ class CreateBillsTable extends Migration
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable();
 
-            $table->foreign('type_id')->references('id')->on('transaction_types');
-            $table->foreign('status_id')->references('id')->on('transaction_statuses');
+            $table->foreign('type_id')->references('id')->on('bill_types');
+            $table->foreign('status_id')->references('id')->on('bill_statuses');
             $table->foreign('wallet_from')->references('id')->on('wallets');
             $table->foreign('wallet_to')->references('id')->on('wallets');
         });

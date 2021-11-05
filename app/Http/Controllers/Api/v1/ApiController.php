@@ -29,22 +29,15 @@ class ApiController extends Controller
      *
      * @OA\Tag(
      *     name="Пользователь",
-     *     description="Работа с объектом пользователя в системе"
+     *     description="Работа пользователем в системе"
      * )
-     *
-     * @OA\Schema(
-     *   schema="User",
-     *   type="object",
-     *   allOf={
-     *       @OA\Schema(
-     *           @OA\Property(property="name", type="string"),
-     *           @OA\Property(property="email", type="string"),
-     *           @OA\Property(property="wallets", type="array",
-     *              @OA\Items(ref="#/components/schemas/Wallet")
-     *           ),
-     *           @OA\Property(property="referrals", type="object", ref="#/components/schemas/Referral")
-     *       )
-     *   }
+     * @OA\Tag(
+     *     name="Кошелек",
+     *     description="Работа с кошельком в системе"
+     * )
+     * @OA\Tag(
+     *     name="Валюта",
+     *     description="Работа с валютами в системе"
      * )
      *
      * @OA\Schema(
@@ -55,17 +48,6 @@ class ApiController extends Controller
      *           @OA\Property(property="address", type="string"),
      *           @OA\Property(property="value", type="string"),
      *           @OA\Property(property="currency", type="object", ref="#/components/schemas/Currency")
-     *       )
-     *   }
-     * )
-     *
-     * @OA\Schema(
-     *   schema="Currency",
-     *   type="object",
-     *   allOf={
-     *       @OA\Schema(
-     *           @OA\Property(property="full_name", type="string"),
-     *           @OA\Property(property="short_name", type="string")
      *       )
      *   }
      * )

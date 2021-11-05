@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\User;
 
 use App\Models\Referral\Level;
 use Illuminate\Database\Seeder;

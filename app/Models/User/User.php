@@ -6,6 +6,7 @@ namespace App\Models\User;
 
 use App\Models\Referral\Link;
 use App\Models\Wallet\Wallet;
+use Exception;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -41,6 +42,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'type_id'
     ];
 
     /**
@@ -116,5 +118,45 @@ class User extends Authenticatable implements MustVerifyEmail
     public function allOwners()
     {
         return $this->owners()->with('allOwners');
+    }/**
+ * Возвращает пользователя
+ *
+ * @param int $id
+ *
+ * @return User
+ * @throws Exception
+ */
+    public static function get(int $id): User
+    {
+        /**
+         * @var User $user
+         */
+        $user = User::find($id);
+        if ($user->type->id === Type::SYSTEM) {
+            throw new Exception('Нельзя получить системный аккаунт');
+        }
+
+        return $user;
+    }
+
+    /**
+     * Возвращает пользователя по имени
+     *
+     * @param string $name
+     *
+     * @return User
+     * @throws Exception
+     */
+    public static function getByName(string $name): User
+    {
+        /**
+         * @var User $user
+         */
+        $user = User::where('name', $name)->first();
+        if ($user->type->id === Type::SYSTEM) {
+            throw new Exception('Нельзя получить системный аккаунт');
+        }
+
+        return $user;
     }
 }

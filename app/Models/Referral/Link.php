@@ -25,4 +25,16 @@ class Link extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
+
+    /**
+     * Возвращает владельца реферальной ссылки
+     *
+     * @param string $link
+     *
+     * @return User|null
+     */
+    public static function getOwner(string $link): ?User
+    {
+        return self::where('link', $link)->with('user')->first()->user;
+    }
 }

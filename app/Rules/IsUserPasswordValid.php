@@ -9,7 +9,7 @@ use App\Repositories\UserRepository;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
 
-class CheckPassword implements Rule
+class IsUserPasswordValid implements Rule
 {
     /**
      * @var User
@@ -21,9 +21,18 @@ class CheckPassword implements Rule
      *
      * @return void
      */
-    public function __construct(string $name)
+    /**
+     * CheckPassword constructor.
+     *
+     * @param string|null $name
+     *
+     * @throws \Exception
+     */
+    public function __construct(?string $name)
     {
-        $this->user = UserRepository::getByName($name);
+        if ($name !== null) {
+            $this->user = User::getByName($name);
+        }
     }
 
     /**
@@ -36,6 +45,10 @@ class CheckPassword implements Rule
      */
     public function passes($attribute, $value)
     {
+        if($this->user === null) {
+            return false;
+        }
+
         return Hash::check($value, $this->user->password);
     }
 

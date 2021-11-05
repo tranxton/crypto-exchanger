@@ -10,4 +10,8 @@ class Type extends Model
     use HasFactory;
 
     protected $table = 'wallet_types';
+
+    public const SYSTEM = 1;
+
+    public const USER = 1;
 }

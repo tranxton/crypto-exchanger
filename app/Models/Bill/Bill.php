@@ -26,6 +26,10 @@ class Bill extends Model
 
     protected $table = 'bills';
 
+    public const MIN_TRANSFER = '0.00001';
+
+    public const MAX_TRANSFER = '9.99';
+
     /**
      * Возвращает тип счет
      *

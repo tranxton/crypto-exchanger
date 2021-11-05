@@ -1,15 +1,15 @@
 <?php
 
-use App\Http\Controllers\Api\v1\TransactionController;
+use App\Http\Controllers\Api\v1\BillController;
+use App\Http\Controllers\Api\v1\CurrencyController;
 use App\Http\Controllers\Api\v1\UserController;
 use App\Http\Controllers\Api\v1\WalletController;
 use Illuminate\Support\Facades\Route;
 
-$api_v = 'api-v1';
-
 /**
  * Неавторизованный доступ
  */
+
 Route::middleware('api')->prefix('v1')->group(function () {
     /**
      * Пользователь
@@ -23,32 +23,40 @@ Route::middleware('api')->prefix('v1')->group(function () {
 /**
  * Авторизованный доступ
  */
-Route::middleware('auth:api')->group(function () {
+Route::middleware(['auth:api'])->prefix('v1')->group(function () {
     /**
      * Пользователь
      */
     Route::prefix('user')->group(function () {
         Route::get('{id}', [UserController::class, 'get'])->name('api-v1-user-get');
     });
+
+    /**
+     * Валюта
+     */
+    Route::prefix('currency')->group(function () {
+        Route::get('all', [CurrencyController::class, 'getList'])->name('api-v1-currency-get-all');
+    });
+
     /**
      * Кошелек
      */
     Route::prefix('wallet')->group(function () {
-        Route::get('get', [WalletController::class, 'getList'])->name('api-v1-wallet-get-list');
-        Route::get('get/{id}', [WalletController::class, 'getList'])->name('api-v1-wallet-get');
-        Route::post('create', [WalletController::class, 'create'])->name('api-v1-wallet-create');
+        Route::get('all', [WalletController::class, 'getList'])->name('api-v1-wallet-get-all');
+        Route::get('{address}', [WalletController::class, 'get'])->name('api-v1-wallet-get');
+        Route::post('', [WalletController::class, 'create'])->name('api-v1-wallet-create');
     });
+
     /**
-     * Транзакция
+     * Переводы
      */
-    Route::prefix('transaction')->group(function () {
-        Route::get('get', [TransactionController::class, 'getList'])->name('api-v1-transaction-get-list');
-        Route::get('get/{id}', [TransactionController::class, 'get'])->name('api-v1-transaction-get');
-        Route::post('create', [TransactionController::class, 'create'])->name('api-v1-transaction-create');
-        Route::post('accept', [TransactionController::class, 'accept'])->name('api-v1-transaction-accept');
-        Route::prefix('commission')->group(function () {
-            Route::get('get', [TransactionController::class, 'get'])->name('api-v1-transaction-commission-get');
-            Route::get('calculate', [TransactionController::class, 'get'])->name('api-v1-transaction-commission-get');
-        });
+    Route::prefix('bill')->group(function () {
+//        Route::get('all', [BillController::class, 'getList'])->name('api-v1-bill-get-all');
+//        Route::get('{id}', [BillController::class, 'get'])->name('api-v1-bill-get');
+        Route::post('', [BillController::class, 'create'])->name('api-v1-bill-create');
+//        Route::post('accept', [BillController::class, 'accept'])->name('api-v1-bill-accept');
+//        Route::prefix('commission')->group(function () {
+//            Route::get('calculate', [BillController::class, 'get'])->name('api-v1-bill-commission-get');
+//        });
     });
 });
