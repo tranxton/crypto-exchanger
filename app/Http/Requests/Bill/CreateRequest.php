@@ -24,7 +24,7 @@ class CreateRequest extends FormRequest
         return [
             'sender_wallet_address'    => ['required', 'string', Rule::exists(Wallet::class, 'address')],
             'recipient_wallet_address' => ['required', 'string', Rule::exists(Wallet::class, 'address')],
-            'value'                    => ['required', 'numeric', "between:{{$min}},{{$max}}"],
+            'value'                    => ['required', 'numeric', "between:{$min},{$max}"],
             'type'                     => ['required', 'integer', Rule::exists(Type::class, 'id')],
         ];
     }

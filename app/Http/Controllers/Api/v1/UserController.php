@@ -55,9 +55,9 @@ class UserController extends ApiController
      */
     public function get(UserGetRequest $request): Response
     {
-        $id = (int) $request->validated()['id'];
+        $name = (string) $request->validated()['name'];
         try {
-            $user = User::get($id);
+            $user = User::getByName($name);
         } catch (\Exception $e) {
             $message = ['message' => $e->getMessage()];
 

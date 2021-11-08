@@ -15,7 +15,13 @@ class CreateBillsHistoryTable extends Migration
     {
         Schema::create('bills_history', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->unsignedBigInteger('bill_id')->index();
+            $table->string('action', 20);
+            $table->binary('payload');
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable();
+
+            $table->foreign('bill_id')->references('id')->on('bills');
         });
     }
 
@@ -26,6 +32,8 @@ class CreateBillsHistoryTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bills_history');
+        Schema::table('bills_history', function (Blueprint $table) {
+            $table->dropIfExists();
+        });
     }
 }

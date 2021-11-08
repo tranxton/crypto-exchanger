@@ -13,6 +13,7 @@ use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class UserRepository
@@ -58,6 +59,13 @@ class UserRepository
             }
         } catch (Exception $e) {
             DB::rollBack();
+
+            $context = [
+                'error'                => $e->getMessage(),
+                'user'                 => $referral ??= null,
+                'user_link'            => $link ??= null,
+            ];
+            Log::error("Can't create user", $context);
 
             throw new Exception($e->getMessage(), 0, $e);
         }

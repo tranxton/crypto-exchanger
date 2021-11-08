@@ -4,22 +4,27 @@ declare(strict_types=1);
 
 namespace App\Models\Wallet;
 
+use App\Helpers\BCMathHelper;
+use App\Models\Bill\Bill;
 use App\Models\Currency;
 use App\Models\User\User;
+use App\Repositories\BillRepository;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * @property int      $id
- * @property User     $user
- * @property Currency $currency
- * @property Type     $type
- * @property string   $address
- * @property string   $value
+ * @property int              $id
+ * @property User             $user
+ * @property Currency         $currency
+ * @property Collection<Bill> $bills
+ * @property Type             $type
+ * @property string           $address
+ * @property string           $value
  */
 class Wallet extends Model
 {
-    use HasFactory;
+    use HasFactory, BCMathHelper;
 
     public const DEFAULT_VALUE = '0.00';
 
@@ -43,6 +48,11 @@ class Wallet extends Model
     public function currency()
     {
         return $this->hasOne(Currency::class, 'id', 'currency_id');
+    }
+
+    public function bills()
+    {
+        return $this->hasMany(Bill::class, 'wallet_from_id', 'id');
     }
 
     /**
@@ -77,5 +87,30 @@ class Wallet extends Model
     public function isUserOwner(User $user): bool
     {
         return $this->user->id === $user->id;
+    }
+
+    /**
+     * Возвращает текущий баланс кошелька
+     *
+     * @return string
+     */
+    public function getBalance(): string
+    {
+        /**
+         * @var Collection<Bill> $active_bills
+         */
+        $active_bills = BillRepository::getActive($this);
+        if ($active_bills->count() === 0) {
+            return $this->value;
+        }
+
+        $active_bills_sum = $active_bills->reduce(
+            function ($carry, $item) {
+                return self::addition($carry, $item->value);
+            },
+            '0.00'
+        );
+
+        return self::subtraction($this->value, $active_bills_sum);
     }
 }

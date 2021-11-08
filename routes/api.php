@@ -28,7 +28,7 @@ Route::middleware(['auth:api'])->prefix('v1')->group(function () {
      * Пользователь
      */
     Route::prefix('user')->group(function () {
-        Route::get('{id}', [UserController::class, 'get'])->name('api-v1-user-get');
+        Route::get('{name}', [UserController::class, 'get'])->name('api-v1-user-get');
     });
 
     /**
@@ -51,8 +51,8 @@ Route::middleware(['auth:api'])->prefix('v1')->group(function () {
      * Переводы
      */
     Route::prefix('bill')->group(function () {
-//        Route::get('all', [BillController::class, 'getList'])->name('api-v1-bill-get-all');
-//        Route::get('{id}', [BillController::class, 'get'])->name('api-v1-bill-get');
+        Route::get('all', [BillController::class, 'getList'])->name('api-v1-bill-get-all');
+        Route::get('{id}', [BillController::class, 'get'])->name('api-v1-bill-get');
         Route::post('', [BillController::class, 'create'])->name('api-v1-bill-create');
 //        Route::post('accept', [BillController::class, 'accept'])->name('api-v1-bill-accept');
 //        Route::prefix('commission')->group(function () {

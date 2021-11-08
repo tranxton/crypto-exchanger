@@ -19,7 +19,7 @@ class GetRequest extends FormRequest
     {
         parent::all($keys);
 
-        return ['id' => $this->route('id')];
+        return ['name' => $this->route('name')];
     }
 
     /**
@@ -30,7 +30,7 @@ class GetRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => ['required', 'integer', Rule::exists(User::class, 'id')],
+            'name' => ['required', 'string', Rule::exists(User::class, 'name')],
         ];
     }
 }

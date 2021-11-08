@@ -15,5 +15,11 @@ class Type extends Model
 {
     use HasFactory;
 
+    public const TRANSFER = 1;
+
+    public const COMMISSION = 2;
+
+    public const BONUS = 3;
+
     protected $table = 'transaction_types';
 }

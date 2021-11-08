@@ -21,7 +21,7 @@ class WalletResource extends JsonResource
          */
         $wallet = [
             'address'  => $this->address,
-            'value'    => $this->value,
+            'value'    => $this->getBalance(),
             'currency' => new CurrencyResource($this->currency),
         ];
 

@@ -30,7 +30,7 @@ class GetRequest extends FormRequest
     public function rules()
     {
         return [
-            'address' => ['required', 'string', Rule::exists(Wallet::class, 'id')],
+            'address' => ['required', 'string', Rule::exists(Wallet::class, 'address')],
         ];
     }
 }

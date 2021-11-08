@@ -16,9 +16,8 @@ class CreateTransactionHistoriesTable extends Migration
         Schema::create('transaction_history', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('transaction_id')->index();
-            $table->string('action', 40);
+            $table->string('action', 20);
             $table->binary('payload');
-            $table->binary('payload_new');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable();
 

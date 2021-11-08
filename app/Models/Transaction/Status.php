@@ -15,5 +15,13 @@ class Status extends Model
 {
     use HasFactory;
 
+    public const BLOCKED = 1;
+
+    public const COMPLETED = 2;
+
+    public const FAILED = 3;
+
+    public const EXPIRED = 4;
+
     protected $table = 'transaction_statuses';
 }

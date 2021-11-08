@@ -21,6 +21,8 @@ class Transaction extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['bill_id', 'status_id', 'type_id', 'value'];
+
     /**
      * Возвращает счет, которому принадлежит транзакция
      *
@@ -48,7 +50,7 @@ class Transaction extends Model
      */
     public function status()
     {
-        return $this->hasOne(Status::class, 'id', 'type_id');
+        return $this->hasOne(Status::class, 'id', 'status_id');
     }
 
     /**

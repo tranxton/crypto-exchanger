@@ -36,6 +36,10 @@ class ApiController extends Controller
      *     description="Работа с кошельком в системе"
      * )
      * @OA\Tag(
+     *     name="Перевод",
+     *     description="Работа с переводами/транзакциями в системе"
+     * )
+     * @OA\Tag(
      *     name="Валюта",
      *     description="Работа с валютами в системе"
      * )
