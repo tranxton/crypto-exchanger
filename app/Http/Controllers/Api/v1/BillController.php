@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\v1;
 
 use App\Helpers\FloatHelper;
+use App\Http\Requests\Bill\GetRequest as BillGetRequest;
 use App\Http\Requests\Bill\GetRequest as GetBillRequest;
 use App\Http\Requests\Bill\CreateRequest as CreateBillRequest;
 use App\Http\Resources\BillResource;
 use App\Models\Bill\Bill;
 use App\Models\User\User;
 use App\Models\Wallet\Wallet;
-use App\Modules\BillModule;
+use App\Services\BillService;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
@@ -19,7 +21,6 @@ use Illuminate\Support\Collection;
 class BillController extends ApiController
 {
     use FloatHelper;
-
 
 
     /**
@@ -139,7 +140,7 @@ class BillController extends ApiController
          * @var Bill $bill
          */
         $bill = Bill::find($id);
-        if (!$bill->wallet_from->isUserOwner($user) && !$bill->wallet_to->isUserOwner($user)) {
+        if (!$bill->sender_wallet->isUserOwner($user) && !$bill->recipient_wallet->isUserOwner($user)) {
             return new Response(['message' => 'Нельзя просматривать чужие платежи'], 401);
         }
 
@@ -223,8 +224,8 @@ class BillController extends ApiController
         $value = $this->toString($bill_data['value']);
 
         try {
-            $bill = (new BillModule($user))->create($sender_wallet, $recipient_wallet, $value);
-        } catch (\Exception $e) {
+            $bill = BillService::create($user, $sender_wallet, $recipient_wallet, $value);
+        } catch (Exception $e) {
             return new Response(['message' => $e->getMessage()], $e->getCode());
         }
         $message = [
@@ -235,8 +236,58 @@ class BillController extends ApiController
         return new Response($message, 201);
     }
 
-    public function accept(Request $request)
+    /**
+     * @OA\Post(
+     *      path="/bill/{id}",
+     *      operationId="accept",
+     *      tags={"Перевод"},
+     *      summary="Подтверждение перевода",
+     *      description="Подтверждает перевод",
+     *      @OA\Parameter(
+     *          name="Authorization",
+     *          description="Токен",
+     *          required=true,
+     *          in="header",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Успешно выполнен"
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Требуется авторизация"
+     *       ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Ошибка валидации"
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Произошла непредвиденная ошибка"
+     *      )
+     * )
+     *
+     * Подтверждение перевода
+     *
+     * @param GetBillRequest $request
+     *
+     * @return Response
+     */
+    public function accept(BillGetRequest $request): Response
     {
-        //Подтверждение транзакции
+        $id = (int) $request->validated()['id'];
+        $user = $request->user();
+        $bill = Bill::find($id);
+
+        try {
+            $bill = BillService::accept($user, $bill);
+        } catch (Exception $e) {
+            return new Response(['message' => $e->getMessage()], 500);
+        }
+
+        return new Response(new BillResource($bill));
     }
 }

@@ -19,5 +19,5 @@ class Type extends Model
 
     public const SYSTEM = 1;
 
-    public const USER = 1;
+    public const USER = 2;
 }

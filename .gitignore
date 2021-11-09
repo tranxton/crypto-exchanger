@@ -13,3 +13,4 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscodeComposerAutoloaderInitf105d740500ee9a50ea48f1cffac713e
+/docker

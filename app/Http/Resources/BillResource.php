@@ -20,10 +20,7 @@ class BillResource extends JsonResource
      *           @OA\Property(property="type", type="string"),
      *           @OA\Property(property="value", type="string"),
      *           @OA\Property(property="wallet_sender", type="string"),
-     *           @OA\Property(property="wallet_recipient", type="string"),
-     *           @OA\Property(property="transactions", type="array",
-     *              @OA\Items(ref="#/components/schemas/Transaction")
-     *           )
+     *           @OA\Property(property="wallet_recipient", type="string")
      *       )
      *   }
      * )
@@ -44,9 +41,8 @@ class BillResource extends JsonResource
             'type'             => $this->type->name,
             'status'           => $this->status->name,
             'value'            => $this->value,
-            'wallet_sender'    => $this->wallet_from->address,
-            'wallet_recipient' => $this->wallet_to->address,
-            'transactions'     => TransactionResource::collection($this->transactions),
+            'wallet_sender'    => $this->sender_wallet->address,
+            'expires_at'       => $this->expires_at,
         ];
     }
 }

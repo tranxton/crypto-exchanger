@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int    $id
  * @property Bill   $bill
  * @property Type   $type
- * @property Status $status
  * @property Error  $error
  * @property string $value
  */
@@ -41,16 +40,6 @@ class Transaction extends Model
     public function type()
     {
         return $this->hasOne(Type::class, 'id', 'type_id');
-    }
-
-    /**
-     * Возвращает статус транзакции
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function status()
-    {
-        return $this->hasOne(Status::class, 'id', 'status_id');
     }
 
     /**

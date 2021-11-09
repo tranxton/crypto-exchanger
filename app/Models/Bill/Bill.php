@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models\Bill;
 
 use App\Models\Transaction\Transaction;
+use App\Models\User\User;
 use App\Models\Wallet\Wallet;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,34 +14,51 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @property int                     $id
  * @property Type                    $type
+ * @property User                    $user
  * @property Status                  $status
- * @property int                     $wallet_from_id
- * @property Wallet                  $wallet_from
- * @property int                     $wallet_to_id
- * @property Wallet                  $wallet_to
+ * @property int                     $status_id
+ * @property int                     $sender_wallet_id
+ * @property Wallet                  $sender_wallet
+ * @property int                     $recipient_wallet_id
+ * @property Wallet                  $recipient_wallet
  * @property Collection<Transaction> $transactions
  * @property ?Error                  $error
  * @property string                  $value
+ * @property string                  $expires_at
  */
 class Bill extends Model
 {
     use HasFactory;
 
+    /**
+     * Минимальная сумма перевода
+     */
     public const MIN_TRANSFER = '0.00001';
 
+    /**
+     * Максимальная сумма перевода
+     */
     public const MAX_TRANSFER = '9.99';
 
     /**
-     * 0.05 = 5 процентов
+     * Время жизни счета в минутах
      */
-    public const TRANSFER_COMMISSION = '0.05';
+    public const EXPIRES_IN = 15;
 
     protected $table = 'bills';
 
-    protected $fillable = ['type_id', 'status_id', 'wallet_from_id', 'wallet_to_id', 'value'];
+    protected $fillable = [
+        'user_id',
+        'type_id',
+        'status_id',
+        'sender_wallet_id',
+        'recipient_wallet_id',
+        'value',
+        'expires_at',
+    ];
 
     /**
-     * Возвращает тип счет
+     * Возвращает тип счета
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
@@ -50,13 +68,23 @@ class Bill extends Model
     }
 
     /**
+     * Возвращает владельца счета
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    /**
      * Возвращает статус счета
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function status()
     {
-        return $this->hasOne(Status::class, 'id', 'type_id');
+        return $this->hasOne(Status::class, 'id', 'status_id');
     }
 
     /**
@@ -64,9 +92,9 @@ class Bill extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function wallet_from()
+    public function sender_wallet()
     {
-        return $this->belongsTo(Wallet::class, 'wallet_from_id', 'id');
+        return $this->belongsTo(Wallet::class, 'sender_wallet_id', 'id');
     }
 
     /**
@@ -74,9 +102,9 @@ class Bill extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function wallet_to()
+    public function recipient_wallet()
     {
-        return $this->belongsTo(Wallet::class, 'wallet_to_id', 'id');
+        return $this->belongsTo(Wallet::class, 'recipient_wallet_id', 'id');
     }
 
     public function error()
@@ -87,5 +115,87 @@ class Bill extends Model
     public function transactions()
     {
         return $this->hasMany(Transaction::class, 'bill_id', 'id');
+    }
+
+    /**
+     * Проверяет не истекло ли время жизни счета
+     *
+     * @return bool
+     */
+    public function isExpired(): bool
+    {
+        return (new \DateTime())->format('Y-m-d H:i:s') >= $this->expires_at;
+    }
+
+    /**
+     * Изменяет статус счета на "Завершено"
+     *
+     * @return bool
+     */
+    public function complete()
+    {
+        $this->status_id = Status::COMPLETED;
+
+        return $this->save();
+    }
+
+    /**
+     * Изменяет статус счета на "Подтверждена"
+     *
+     * @return bool
+     */
+    public function accept(): bool
+    {
+        $this->status_id = Status::ACCEPTED;
+
+        return $this->save();
+    }
+
+    /**
+     * Изменяет статус счета на "Просрочен"
+     *
+     * @return bool
+     */
+    public function expire()
+    {
+        $this->status_id = Status::EXPIRED;
+
+        return $this->save();
+    }
+
+    /**
+     * Изменяет статус счета на "Ошибка завершения"
+     *
+     * @return bool
+     */
+    public function fail()
+    {
+        $this->status_id = Status::FAILED;
+
+        return $this->save();
+    }
+
+    /**
+     * Является ли пользователь владельцем счета
+     *
+     * @param User $user
+     *
+     * @return bool
+     */
+    public function isUserOwner(User $user): bool
+    {
+        return $this->user->id === $user->id;
+    }
+
+    /**
+     * Возвращает список активных платежи
+     *
+     * @param Wallet $wallet
+     *
+     * @return Collection<?Bill>
+     */
+    public static function getActive(Wallet $wallet): Collection
+    {
+        return Bill::where('sender_wallet_id', $wallet->id)->whereIn('status_id', Status::ACTIVE)->get();
     }
 }

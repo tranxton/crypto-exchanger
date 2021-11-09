@@ -54,7 +54,7 @@ Route::middleware(['auth:api'])->prefix('v1')->group(function () {
         Route::get('all', [BillController::class, 'getList'])->name('api-v1-bill-get-all');
         Route::get('{id}', [BillController::class, 'get'])->name('api-v1-bill-get');
         Route::post('', [BillController::class, 'create'])->name('api-v1-bill-create');
-//        Route::post('accept', [BillController::class, 'accept'])->name('api-v1-bill-accept');
+        Route::post('{id}', [BillController::class, 'accept'])->name('api-v1-bill-accept');
 //        Route::prefix('commission')->group(function () {
 //            Route::get('calculate', [BillController::class, 'get'])->name('api-v1-bill-commission-get');
 //        });

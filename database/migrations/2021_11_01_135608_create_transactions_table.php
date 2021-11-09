@@ -16,7 +16,6 @@ class CreateTransactionsTable extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('bill_id')->index();
-            $table->unsignedBigInteger('status_id');
             $table->unsignedBigInteger('type_id');
             $table->string('value', 20);
             $table->timestamp('created_at')->useCurrent();
@@ -24,7 +23,6 @@ class CreateTransactionsTable extends Migration
 
             $table->foreign('bill_id')->references('id')->on('bills');
             $table->foreign('type_id')->references('id')->on('transaction_types');
-            $table->foreign('status_id')->references('id')->on('transaction_statuses');
         });
     }
 
@@ -38,7 +36,6 @@ class CreateTransactionsTable extends Migration
         Schema::table('transactions', function (Blueprint $table) {
             $table->dropForeign('transactions_bill_id_foreign');
             $table->dropForeign('transactions_type_id_foreign');
-            $table->dropForeign('transactions_status_id_foreign');
             $table->dropIfExists();
         });
     }

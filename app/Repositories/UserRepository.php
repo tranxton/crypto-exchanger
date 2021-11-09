@@ -62,8 +62,8 @@ class UserRepository
 
             $context = [
                 'error'                => $e->getMessage(),
-                'user'                 => $referral ??= null,
-                'user_link'            => $link ??= null,
+                'user'                 => $referral ?? null,
+                'user_link'            => $link ?? null,
             ];
             Log::error("Can't create user", $context);
 

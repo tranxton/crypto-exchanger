@@ -8,7 +8,6 @@ use App\Helpers\BCMathHelper;
 use App\Models\Bill\Bill;
 use App\Models\Currency;
 use App\Models\User\User;
-use App\Repositories\BillRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -52,7 +51,7 @@ class Wallet extends Model
 
     public function bills()
     {
-        return $this->hasMany(Bill::class, 'wallet_from_id', 'id');
+        return $this->hasMany(Bill::class, 'sender_wallet_id', 'id');
     }
 
     /**
@@ -99,7 +98,7 @@ class Wallet extends Model
         /**
          * @var Collection<Bill> $active_bills
          */
-        $active_bills = BillRepository::getActive($this);
+        $active_bills = Bill::getActive($this);
         if ($active_bills->count() === 0) {
             return $this->value;
         }
@@ -112,5 +111,33 @@ class Wallet extends Model
         );
 
         return self::subtraction($this->value, $active_bills_sum);
+    }
+
+    /**
+     * Увеличивает баланс кошелька
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    public function increaseBalance(string $value): string
+    {
+        $this->value = self::addition($this->value, $value);
+
+        return $this->value;
+    }
+
+    /**
+     * Уменьшает баланс кошелька
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    public function decreaseBalance(string $value): string
+    {
+        $this->value = self::subtraction($this->value, $value);
+
+        return $this->value;
     }
 }
