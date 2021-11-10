@@ -20,16 +20,4 @@ class Currency extends Model
     public const BITCOIN = 1;
 
     public const ETHEREUM = 2;
-
-    /**
-     * Получить валюту по сокращенному имени
-     *
-     * @param string $short_name
-     *
-     * @return static|null
-     */
-    public static function getByShortName(string $short_name): ?self
-    {
-        return self::where('short_name', $short_name)->first();
-    }
 }

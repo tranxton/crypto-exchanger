@@ -23,5 +23,6 @@ class DatabaseSeeder extends Seeder
         $this->call(\Database\Seeders\Bill\StatusesSeeder::class);
         $this->call(\Database\Seeders\Transaction\TypesSeeder::class);
         $this->call(\Database\Seeders\Transaction\StatusesSeeder::class);
+        $this->call(\Database\Seeders\User\ReferralChargeStatusesSeeder::class);
     }
 }

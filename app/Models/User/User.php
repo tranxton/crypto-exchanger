@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models\User;
 
+use App\Models\Bill\Bill;
 use App\Models\Referral\Link;
 use App\Models\Wallet\Wallet;
-use Exception;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -23,6 +23,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string             $api_token
  * @property Link               $referral_link
  * @property Collection<Wallet> $wallets
+ * @property Collection<Bill>   $bills
  * @property Collection<User>   $referrals
  * @property Collection<User>   $owners
  * @property Collection<User>   $allOwners
@@ -42,7 +43,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'type_id'
+        'type_id',
     ];
 
     /**
@@ -52,8 +53,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $hidden = [
         'password',
-        'remember_token',
-        'api_token'
+        'remember_token'
     ];
 
     /**
@@ -82,6 +82,16 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Возвращает список счетов
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function bills()
+    {
+        return $this->hasMany(Bill::class, 'user_id', 'id');
+    }
+
+    /**
      * Возвращает реферальной ссылку
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
@@ -94,21 +104,21 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Возвращает список рефералов пользователя
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
      */
     public function referrals()
     {
-        return $this->belongsToMany(User::class, Referral::class, 'user_id', 'referral_id');
+        return $this->hasManyThrough(User::class, Referral::class, 'user_id', 'id','id','referral_id');
     }
 
     /**
      * Возвращает список владельцев реферала
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
      */
     public function owners()
     {
-        return $this->belongsToMany(User::class, Referral::class, 'referral_id', 'user_id');
+        return $this->hasManyThrough(User::class, Referral::class, 'user_id', 'id','id','user_id');
     }
 
     /**
@@ -118,46 +128,16 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function allOwners()
     {
-        return $this->owners()->with('allOwners');
-    }/**
- * Возвращает пользователя
- *
- * @param int $id
- *
- * @return User
- * @throws Exception
- */
-    public static function get(int $id): User
-    {
-        /**
-         * @var User $user
-         */
-        $user = User::find($id);
-        if ($user->type->id === Type::SYSTEM) {
-            throw new Exception('Нельзя получить системный аккаунт');
-        }
-
-        return $user;
+        return $this->belongsToMany(User::class, Referral::class, 'referral_id', 'user_id')->with('allOwners');
     }
 
     /**
-     * Возвращает пользователя по имени
+     * Является ли аккаунт системным
      *
-     * @param string $name
-     *
-     * @return User
-     * @throws Exception
+     * @return bool
      */
-    public static function getByName(string $name): User
+    public function isSystem(): bool
     {
-        /**
-         * @var User $user
-         */
-        $user = User::where('name', $name)->first();
-        if ($user->type->id === Type::SYSTEM) {
-            throw new Exception('Нельзя получить системный аккаунт');
-        }
-
-        return $user;
+        return $this->type->id === Type::SYSTEM;
     }
 }

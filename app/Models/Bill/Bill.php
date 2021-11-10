@@ -7,7 +7,7 @@ namespace App\Models\Bill;
 use App\Models\Transaction\Transaction;
 use App\Models\User\User;
 use App\Models\Wallet\Wallet;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -185,17 +185,5 @@ class Bill extends Model
     public function isUserOwner(User $user): bool
     {
         return $this->user->id === $user->id;
-    }
-
-    /**
-     * Возвращает список активных платежи
-     *
-     * @param Wallet $wallet
-     *
-     * @return Collection<?Bill>
-     */
-    public static function getActive(Wallet $wallet): Collection
-    {
-        return Bill::where('sender_wallet_id', $wallet->id)->whereIn('status_id', Status::ACTIVE)->get();
     }
 }

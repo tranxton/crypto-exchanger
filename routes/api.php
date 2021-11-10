@@ -15,8 +15,8 @@ Route::middleware('api')->prefix('v1')->group(function () {
      * Пользователь
      */
     Route::prefix('user')->group(function () {
-        Route::post('register', [UserController::class, 'register'])->name('api-v1-user-register');
-        Route::get('login', [UserController::class, 'login'])->name('api-v1-user-login');
+        Route::post('', [UserController::class, 'register'])->name('api-v1-user-register');
+        Route::post('login', [UserController::class, 'login'])->name('api-v1-user-login');
     });
 });
 

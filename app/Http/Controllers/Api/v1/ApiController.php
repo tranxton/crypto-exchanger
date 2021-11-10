@@ -57,16 +57,6 @@ class ApiController extends Controller
      * )
      *
      * @OA\Schema(
-     *   schema="Referral",
-     *   type="object",
-     *   allOf={
-     *       @OA\Schema(
-     *           @OA\Property(property="amount", type="integer")
-     *       )
-     *   }
-     * )
-     *
-     * @OA\Schema(
      *   schema="Auth",
      *   type="object",
      *   allOf={

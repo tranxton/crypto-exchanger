@@ -7,8 +7,8 @@ namespace App\Http\Controllers\Api\v1;
 use App\Http\Requests\Wallet\CreateRequest as CreateWalletRequest;
 use App\Http\Requests\Wallet\GetRequest as GetWalletRequest;
 use App\Http\Resources\WalletResource;
-use App\Models\Currency;
 use App\Models\Wallet\Wallet;
+use App\Repositories\CurrencyRepository;
 use App\Repositories\WalletRepository;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -111,9 +111,9 @@ class WalletController extends ApiController
         /**
          * @var Wallet $wallet
          */
-        $wallet = Wallet::getByAddress($address);
+        $wallet = WalletRepository::getByAddress($address);
         if (!$wallet->isUserOwner($request->user())) {
-            return  new Response(['message' => 'Нельзя получить чужой кошелек'], 401);
+            return new Response(['message' => 'Нельзя получить чужой кошелек'], 401);
         }
 
         return new Response(new WalletResource($wallet));
@@ -181,7 +181,7 @@ class WalletController extends ApiController
     {
         $data = $request->validated();
         $user = $request->user();
-        $currency = Currency::getByShortName($data['currency']);
+        $currency = CurrencyRepository::getByShortName($data['currency']);
         $address = $data['address'];
 
         try {

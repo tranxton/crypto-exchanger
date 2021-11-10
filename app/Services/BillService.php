@@ -7,21 +7,47 @@ namespace App\Services;
 use App\Helpers\BCMathHelper;
 use App\Jobs\Bill\Transfer as BillTransferJob;
 use App\Models\Bill\Bill;
-use App\Models\Bill\BillTransfer;
 use App\Models\Bill\Status;
 use App\Models\User\User;
 use App\Models\Wallet\Wallet;
+use App\Repositories\BillRepository;
 use Exception;
-use Illuminate\Support\Facades\Cache;
 
 class BillService
 {
     use BCMathHelper;
 
     /**
+     * @var User
+     */
+    private $user;
+
+    public function __construct(User $user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * Получить счет
+     *
+     * @param int $id
+     *
+     * @return Bill
+     * @throws Exception
+     */
+    public function get(int $id): Bill
+    {
+        $bill = BillRepository::get($id);
+        if (!$bill->sender_wallet->isUserOwner($this->user) && !$bill->recipient_wallet->isUserOwner($this->user)) {
+            throw new Exception('Нельзя просматривать чужие платежи', 401);
+        }
+
+        return $bill;
+    }
+
+    /**
      * Создание запроса на перевод
      *
-     * @param User   $user
      * @param Wallet $sender_wallet
      * @param Wallet $recipient_wallet
      * @param string $value
@@ -29,9 +55,9 @@ class BillService
      * @return Bill
      * @throws Exception
      */
-    public static function create(User $user, Wallet $sender_wallet, Wallet $recipient_wallet, string $value): Bill
+    public function create(Wallet $sender_wallet, Wallet $recipient_wallet, string $value): Bill
     {
-        if (!$sender_wallet->isUserOwner($user)) {
+        if (!$sender_wallet->isUserOwner($this->user)) {
             throw new Exception('Нельзя совершить перевод с чужого кошелька', 401);
         }
 
@@ -47,29 +73,29 @@ class BillService
             throw new Exception('Недостаточно средств для создания перевода', 403);
         }
 
-        return BillTransfer::create($user, $sender_wallet, $recipient_wallet, $value);
+        return BillRepository::create($this->user, $sender_wallet, $recipient_wallet, $value);
     }
 
     /**
      * Перевод статуса счета в "Принят"
      *
-     * @param User $user
      * @param Bill $bill
      *
      * @return Bill
      * @throws Exception
      */
-    public static function accept(User $user, Bill $bill): Bill
+    public function accept(Bill $bill): Bill
     {
-        if (!$bill->isUserOwner($user)) {
+        if (!$bill->isUserOwner($this->user)) {
             throw new Exception('Нельзя изменить статус чужого счета', 401);
         }
+
         if ($bill->status->id !== Status::CREATED) {
             throw new Exception('Нельзя изменить статус счета', 422);
         }
-        if (!$bill->accept()) {
-            throw new Exception('Не удалось изменить статус счета', 500);
-        }
+
+        $bill = BillRepository::accept($bill);
+
         BillTransferJob::dispatch($bill);
 
         return $bill;

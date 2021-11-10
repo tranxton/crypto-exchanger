@@ -61,4 +61,18 @@ trait BCMathHelper
     {
         return bcmul($num1, $num2, $scale);
     }
+
+    /**
+     * Делит первое число на второе
+     *
+     * @param string $num1
+     * @param string $num2
+     * @param int    $scale
+     *
+     * @return string
+     */
+    private static function division(string $num1, string $num2, int $scale = 10): string
+    {
+        return bcdiv($num1, $num2, $scale);
+    }
 }

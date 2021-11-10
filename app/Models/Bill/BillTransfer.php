@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Models\Bill;
 
 use App\Helpers\BCMathHelper;
+use App\Models\Transaction\Transaction;
 use App\Models\Transaction\TransactionCommission;
 use App\Models\Transaction\TransactionTransfer;
+use App\Models\Transaction\Type as TransactionType;
 use App\Models\User\User;
 use App\Models\Wallet\Wallet;
 use DateInterval;
@@ -79,6 +81,17 @@ class BillTransfer extends Bill
         return $bill;
     }
 
+    /**
+     * Возвращает комиссию за счет
+     *
+     * @param Bill $bill
+     *
+     * @return Transaction|null
+     */
+    public static function getCommission(Bill $bill): ?Transaction
+    {
+        return Transaction::where('bill_id', $bill->id)->where('type_id', TransactionType::COMMISSION)->first();
+    }
 
     /**
      * Рассчитывает сумму комиссии для переданного числа

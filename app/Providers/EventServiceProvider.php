@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Events\TransferTransactionCompleted;
+use App\Listeners\ChargeBonusToUsers;
 use App\Models\Bill\Bill;
 use App\Observers\BillObserver;
 use Illuminate\Auth\Events\Registered;

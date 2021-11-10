@@ -9,14 +9,13 @@ use App\Http\Requests\Bill\GetRequest as BillGetRequest;
 use App\Http\Requests\Bill\GetRequest as GetBillRequest;
 use App\Http\Requests\Bill\CreateRequest as CreateBillRequest;
 use App\Http\Resources\BillResource;
-use App\Models\Bill\Bill;
 use App\Models\User\User;
-use App\Models\Wallet\Wallet;
+use App\Repositories\BillRepository;
+use App\Repositories\WalletRepository;
 use App\Services\BillService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Collection;
 
 class BillController extends ApiController
 {
@@ -71,16 +70,14 @@ class BillController extends ApiController
      */
     public function getList(Request $request): Response
     {
-        /**
-         * @var User $user
-         */
-        $user = $request->user();
-        $bills = new Collection();
-        /**
-         * @var Wallet $wallet
-         */
-        foreach ($user->wallets as $wallet) {
-            $bills = $bills->merge($wallet->bills);
+        try {
+            /**
+             * @var User $user
+             */
+            $user = $request->user();
+            $bills = BillRepository::all($user);
+        } catch (Exception $e) {
+            return new Response(['message' => 'Не удалось получить список счетов', 500]);
         }
 
         return new Response(BillResource::collection($bills));
@@ -136,12 +133,12 @@ class BillController extends ApiController
     {
         $id = (int) $request->validated()['id'];
         $user = $request->user();
-        /**
-         * @var Bill $bill
-         */
-        $bill = Bill::find($id);
-        if (!$bill->sender_wallet->isUserOwner($user) && !$bill->recipient_wallet->isUserOwner($user)) {
-            return new Response(['message' => 'Нельзя просматривать чужие платежи'], 401);
+
+
+        try {
+            $bill = (new BillService($user))->get($id);
+        } catch (Exception $e) {
+            return new Response(['message' => $e->getMessage()], 500);
         }
 
         return new Response(new BillResource($bill));
@@ -219,12 +216,12 @@ class BillController extends ApiController
         $bill_data = $request->validated();
 
         $user = $request->user();
-        $sender_wallet = Wallet::getByAddress($bill_data['sender_wallet_address']);
-        $recipient_wallet = Wallet::getByAddress($bill_data['recipient_wallet_address']);
+        $sender_wallet = WalletRepository::getByAddress($bill_data['sender_wallet_address']);
+        $recipient_wallet = WalletRepository::getByAddress($bill_data['recipient_wallet_address']);
         $value = $this->toString($bill_data['value']);
 
         try {
-            $bill = BillService::create($user, $sender_wallet, $recipient_wallet, $value);
+            $bill = (new BillService($user))->create($sender_wallet, $recipient_wallet, $value);
         } catch (Exception $e) {
             return new Response(['message' => $e->getMessage()], $e->getCode());
         }
@@ -280,10 +277,10 @@ class BillController extends ApiController
     {
         $id = (int) $request->validated()['id'];
         $user = $request->user();
-        $bill = Bill::find($id);
+        $bill = BillRepository::get($id);
 
         try {
-            $bill = BillService::accept($user, $bill);
+            $bill = (new BillService($user))->accept($bill);
         } catch (Exception $e) {
             return new Response(['message' => $e->getMessage()], 500);
         }

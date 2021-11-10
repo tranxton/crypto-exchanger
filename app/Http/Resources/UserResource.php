@@ -6,7 +6,7 @@ namespace App\Http\Resources;
 
 use App\Models\User\User;
 use App\Models\Wallet\Wallet;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
@@ -22,7 +22,9 @@ class UserResource extends JsonResource
      *           @OA\Property(property="wallets", type="array",
      *              @OA\Items(ref="#/components/schemas/Wallet")
      *           ),
-     *           @OA\Property(property="referrals", type="object", ref="#/components/schemas/Referral")
+     *           @OA\Property(property="referrals", type="array",
+     *              @OA\Items(ref="#/components/schemas/Referral")
+     *           )
      *       )
      *   }
      * )
@@ -42,9 +44,7 @@ class UserResource extends JsonResource
             'name'      => $this->name,
             'email'     => $this->email,
             'wallets'   => WalletResource::collection($this->wallets),
-            'referrals' => [
-                'amount' => $this->referrals->count(),
-            ],
+            'referrals' => ReferralResource::collection($this->referrals),
         ];
     }
 }

@@ -8,7 +8,8 @@ use App\Helpers\BCMathHelper;
 use App\Models\Bill\Bill;
 use App\Models\Currency;
 use App\Models\User\User;
-use Illuminate\Database\Eloquent\Collection;
+use App\Repositories\BillRepository;
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -65,18 +66,6 @@ class Wallet extends Model
     }
 
     /**
-     *
-     *
-     * @param string $address
-     *
-     * @return static
-     */
-    public static function getByAddress(string $address): self
-    {
-        return self::where('address', $address)->first();
-    }
-
-    /**
      * Проверяет является ли пользователь владельце кошелька
      *
      * @param User $user
@@ -98,7 +87,7 @@ class Wallet extends Model
         /**
          * @var Collection<Bill> $active_bills
          */
-        $active_bills = Bill::getActive($this);
+        $active_bills = BillRepository::getActive($this->user)->where('wallet_id', $this->id)->collect();
         if ($active_bills->count() === 0) {
             return $this->value;
         }

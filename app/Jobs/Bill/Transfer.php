@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace App\Jobs\Bill;
 
-use App\Events\TransferTransactionCompletedEvent;
+use App\Events\TransferTransactionCompleted;
 use App\Models\Bill\Bill;
 use App\Models\Transaction\Transaction;
 use App\Models\Transaction\Type;
+use App\Models\User\User;
 use App\Models\Wallet\SystemWallet;
+use App\Models\Wallet\Wallet;
+use App\Repositories\BillRepository;
+use App\Repositories\UserRepository;
+use App\Repositories\WalletRepository;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -71,7 +76,10 @@ class Transfer implements ShouldQueue
             if (!$this->bill->complete()) {
                 throw new Exception("Could not save bill changes");
             }
-            TransferTransactionCompletedEvent::dispatch($this->bill);
+
+            $this->dropCaches($this->bill, $this->sender_wallet, $this->recipient_wallet);
+
+            TransferTransactionCompleted::dispatch($this->bill);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Bill transfer not completed", ['error' => $e->getMessage(), 'bill' => $this->bill->toJson()]);
@@ -137,5 +145,54 @@ class Transfer implements ShouldQueue
         $this->system_wallet->increaseBalance($transaction->value);
 
         return $this->sender_wallet->save() && $this->system_wallet->save();
+    }
+
+    /**
+     * Сбрасывает кэши
+     *
+     * @param Bill   $bill
+     * @param Wallet $sender_wallet
+     * @param Wallet $recipient_wallet
+     */
+    private function dropCaches(Bill $bill, Wallet $sender_wallet, Wallet $recipient_wallet)
+    {
+        $this->dropBillCache($bill);
+
+        $this->dropWalletCache($sender_wallet);
+        $this->dropWalletCache($recipient_wallet);
+
+        $this->dropUserCache($sender_wallet->user);
+        $this->dropUserCache($recipient_wallet->user);
+    }
+
+    /**
+     * Сбрасывает кэш счета
+     *
+     * @param Bill $bill
+     */
+    private function dropBillCache(Bill $bill): void
+    {
+        BillRepository::cacheBill($bill);
+        BillRepository::dropCacheUserBills($bill->user);
+    }
+
+    /**
+     * Сбрасывает кэш пользователя
+     *
+     * @param User $user
+     */
+    private function dropUserCache(User $user): void
+    {
+        UserRepository::cacheUser($user);
+    }
+
+    /**
+     * Сбрасывает кэш кошелька
+     *
+     * @param Wallet $wallet
+     */
+    private function dropWalletCache(Wallet $wallet): void
+    {
+        WalletRepository::cacheWallet($wallet);
     }
 }

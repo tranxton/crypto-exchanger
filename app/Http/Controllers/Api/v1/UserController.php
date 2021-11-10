@@ -8,17 +8,16 @@ use App\Http\Requests\User\GetRequest as UserGetRequest;
 use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\RegisterRequest as UserRegisterRequest;
 use App\Http\Resources\UserResource;
-use App\Models\User\User;
 use App\Repositories\UserRepository;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Str;
 
 class UserController extends ApiController
 {
     /**
      * @OA\Get(
-     *      path="/user/{id}",
+     *      path="/user/{name}",
      *      operationId="get",
      *      tags={"Пользователь"},
      *      summary="Получить объект пользователя",
@@ -56,8 +55,9 @@ class UserController extends ApiController
     public function get(UserGetRequest $request): Response
     {
         $name = (string) $request->validated()['name'];
+
         try {
-            $user = User::getByName($name);
+            $user = UserRepository::getByName($name);
         } catch (\Exception $e) {
             $message = ['message' => $e->getMessage()];
 
@@ -69,7 +69,7 @@ class UserController extends ApiController
 
     /**
      * @OA\Post(
-     *      path="/user/register",
+     *      path="/user",
      *      operationId="register",
      *      tags={"Пользователь"},
      *      summary="Регистрация пользователя в системе",
@@ -137,18 +137,14 @@ class UserController extends ApiController
         try {
             UserRepository::create($user['name'], $user['email'], $user['password'], $user['referral_link']);
         } catch (\Exception $e) {
-            $message = ['message' => $e->getMessage()];
-
-            return new Response($message, 500);
+            return new Response(['message' => $e->getMessage()], 500);
         }
 
-        $message = ['message' => 'Пользователь успешно зарегистрирован'];
-
-        return new Response($message);
+        return new Response(['message' => 'Пользователь успешно зарегистрирован']);
     }
 
     /**
-     * @OA\Get (
+     * @OA\Post (
      *      path="/user/login",
      *      operationId="login",
      *      tags={"Пользователь"},
@@ -196,18 +192,13 @@ class UserController extends ApiController
     public function login(LoginRequest $request): Response
     {
         $data = $request->validated();
-        $user = User::getByName($data['name']);
 
         try {
-            $api_token = Str::random(60);
-            $user->update(['api_token' => $api_token]);
+            $user = UserService::login($data['name'], $data['password']);
         } catch (\Exception $e) {
-            $message = ['message' => 'Не удалось авторизовать пользователя'];
-
-            return new Response($message, 500);
+            return new Response(['message' => $e->getMessage()], $e->getCode());
         }
-        $message = ['message' => 'Вы были успешно авторизованы', 'token' => $user->api_token];
 
-        return new Response($message);
+        return new Response(['message' => 'Вы были успешно авторизованы', 'token' => $user->api_token]);
     }
 }
