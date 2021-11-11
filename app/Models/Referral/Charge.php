@@ -29,7 +29,7 @@ class Charge extends Model
 
     protected $table = 'referral_charges';
 
-    protected $fillable = ['bill_id', 'user_id', 'referral_id', 'level_id', 'status_id', 'value'];
+    protected $fillable = ['bill_id', 'user_id', 'referral_id', 'level_id', 'status_id', 'currency_id', 'value'];
 
     public function status()
     {

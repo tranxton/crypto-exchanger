@@ -98,6 +98,7 @@ class ChargeBonusToUsers
                 [
                     'bill_id'     => $bill->id,
                     'user_id'     => $user->user_id,
+                    'currency_id' => $bill->sender_wallet->currency->id,
                     'referral_id' => $bill->user->id,
                     'level_id'    => $user->level_id,
                     'status_id'   => ChargeStatus::CREATED,

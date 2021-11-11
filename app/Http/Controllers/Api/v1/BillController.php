@@ -218,7 +218,7 @@ class BillController extends ApiController
         $user = $request->user();
         $sender_wallet = WalletRepository::getByAddress($bill_data['sender_wallet_address']);
         $recipient_wallet = WalletRepository::getByAddress($bill_data['recipient_wallet_address']);
-        $value = $this->toString($bill_data['value']);
+        $value = $this->toString((float) $bill_data['value']);
 
         try {
             $bill = (new BillService($user))->create($sender_wallet, $recipient_wallet, $value);
