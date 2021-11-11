@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models\User;
 
 use App\Models\Bill\Bill;
+use App\Models\Referral\Level;
 use App\Models\Referral\Link;
 use App\Models\Wallet\Wallet;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -128,7 +129,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function allOwners()
     {
-        return $this->belongsToMany(User::class, Referral::class, 'referral_id', 'user_id')->with('allOwners');
+        return $this->belongsToMany(User::class, Referral::class, 'referral_id', 'user_id')->with(['allOwners' => function ($q) {
+            $q->where('users_referrals.level_id', Level::MIN);
+        }]);
     }
 
     /**

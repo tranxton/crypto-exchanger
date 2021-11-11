@@ -16,6 +16,7 @@ class CreateReferralChargesTable extends Migration
         Schema::create('referral_charges', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('bill_id')->index();
+            $table->unsignedBigInteger('currency_id')->index();
             $table->unsignedBigInteger('referral_id')->index();
             $table->unsignedBigInteger('user_id')->index();
             $table->unsignedBigInteger('level_id')->index();
@@ -25,6 +26,7 @@ class CreateReferralChargesTable extends Migration
             $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable();
 
             $table->foreign('bill_id')->references('id')->on('bills');
+            $table->foreign('currency_id')->references('id')->on('currencies');
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('referral_id')->references('id')->on('users');
             $table->foreign('level_id')->references('id')->on('referral_levels');
@@ -40,9 +42,10 @@ class CreateReferralChargesTable extends Migration
     public function down()
     {
         Schema::table('referral_charges', function (Blueprint $table) {
+            $table->dropForeign('referral_charges_bill_id_foreign');
+            $table->dropForeign('referral_charges_currency_id_foreign');
+            $table->dropForeign('referral_charges_referral_id_foreign');
             $table->dropForeign('referral_charges_user_id_foreign');
-            $table->dropForeign('referral_charges_referral_id_foreign');
-            $table->dropForeign('referral_charges_referral_id_foreign');
             $table->dropForeign('referral_charges_level_id_foreign');
             $table->dropForeign('referral_charges_status_id_foreign');
             $table->dropIfExists();

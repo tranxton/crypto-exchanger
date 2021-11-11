@@ -25,7 +25,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-         $schedule->job(ChargeBonuses::class)->everyTenMinutes();
+         $schedule->job(new ChargeBonuses)->everyMinute();
     }
 
     /**

@@ -132,7 +132,9 @@ class UserRepository
      */
     public static function linkReferralToUser(User $user, User $referral): bool
     {
-        $users = User::where('id', $user->id)->with('allOwners')->get();
+        $users = User::where('id', $user->id)->with(['allOwners' => function ($q) {
+            $q->where('users_referrals.level_id', Level::MIN);
+        }])->get();
         $relationships = self::createReferralToUsersRelationship($users, $referral, Level::MIN);
 
         if (!Referral::insert($relationships->toArray())) {
@@ -190,7 +192,7 @@ class UserRepository
      *
      * @return Collection
      */
-    private static function createReferralToUsersRelationship(Collection $users, User $referral, int $level): Collection
+    public static function createReferralToUsersRelationship(Collection $users, User $referral, int $level): Collection
     {
         /**
          * @var User $user
@@ -198,7 +200,7 @@ class UserRepository
         $collection = new Collection();
         foreach ($users as $user) {
             $collection->add(['user_id' => $user->id, 'referral_id' => $referral->id, 'level_id' => $level++]);
-            if ($level === Level::MAX) {
+            if ($level > Level::MAX) {
                 return $collection;
             }
             if ($user->allOwners->count() !== 0) {
