@@ -13,6 +13,7 @@ use App\Models\Referral\ChargeStatus;
 use App\Models\Referral\Level;
 use App\Models\Transaction\Transaction;
 use App\Models\User\Referral;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
@@ -46,7 +47,7 @@ class ChargeBonusToUsers
     {
         try {
             $this->chargeBonuses($event->bill);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error("Bonuses were not charged: {$e->getMessage()}", ['bill' => $event->bill->toJson()]);
         }
     }
@@ -54,7 +55,7 @@ class ChargeBonusToUsers
     /**
      * @param Bill $bill
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function chargeBonuses(Bill $bill): void
     {
@@ -63,12 +64,12 @@ class ChargeBonusToUsers
          */
         $users = Referral::select(['user_id', 'level_id'])->where('referral_id', $bill->user->id)->get();
         if ($users->count() === 0) {
-            throw new \Exception('No referrals');
+            throw new Exception('No referrals');
         }
 
         $commission = BillTransfer::getCommission($bill);
         if ($commission === null) {
-            throw new \Exception("Could not find bill commission");
+            throw new Exception("Could not find bill commission");
         }
 
         /**
@@ -77,7 +78,7 @@ class ChargeBonusToUsers
         $new_charges = $this->createNewCharges($users, $bill, $commission);
 
         if (!Charge::insert($new_charges->toArray())) {
-            throw new \Exception("Could not insert charges");
+            throw new Exception("Could not insert charges");
         }
     }
 
